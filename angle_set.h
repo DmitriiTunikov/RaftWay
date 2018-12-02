@@ -1,17 +1,23 @@
 #include <utility>
 #include <vector>
 
-struct Angle
+class Angle
 {
+	friend class AngleSet;
+private:
 	double a, b;
-	bool visited = false;
-
+public:
 	Angle() = default;
 	Angle(double A, double B) :
 		a(A), b(B)
 	{
 		if (b < a)
 			std::swap(a, b);
+	}
+
+	bool IsIn(double AngleValue)
+	{
+		return AngleValue >= a && AngleValue <= b;
 	}
 }; 
 
@@ -25,19 +31,31 @@ public:
 	{
 
 	}
+	AngleSet() = default;
+
 	~AngleSet() = default;
 
-	Angle Intersect(const Angle &Angle)
+	bool Intersected(const Angle &Ang, AngleSet &Res)
 	{
-
+		
 	}
 
-	void Intersect(const AngleVector& Set)
+	AngleSet Intersect(const AngleSet& Set)
 	{
+		AngleSet res;
 
+		for (const Angle &s1 : _set)
+			for (const Angle &s2 : Set._set)
+			{
+				if (s1.a > s2.b || s1.b < s2.a)
+					continue;
+
+				if (s2.a <= s2.a)
+					;
+			}
 	}
 
-	void Unite(const AngleVector& Set)
+	AngleSet Unite(const AngleSet& Set)
 	{
 
 	}
