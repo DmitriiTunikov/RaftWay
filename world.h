@@ -4,24 +4,11 @@
 
 #include "segment.h"
 #include "raft.h"
+#include "dijkstra.h"
+#include "angle_graph_elem.h"
+#include "graph.h"
 
 using AngleInterval = std::pair<double, double>;
-
-
-class WayPoint {
-public:
-	Vector2d pos;
-	double angle;
-};
-
-
-class GraphVert {
-public:
-	Vector2d pos;
-	std::vector<AngleInterval> angleInterval;
-
-	bool isBlocked = true;
-};
 
 class World {
 public:
@@ -59,14 +46,14 @@ public:
 		if (raft.raftSide + raft.triangleHeight > distanceBetweenObstacles)
 			return false;
 
-		InitGrid();
+		//InitGrid();
 
 		return true;
 	}
 
 private:
 	void InitGrid(double epsilon) {
-		double minX = -distanceBetweenObstacles + raft.raftSide / 2;
+		/*double minX = -distanceBetweenObstacles + raft.raftSide / 2;
 		double maxX = raft.raftSide / 2 + raft.triangleHeight;
 		double minY = -raft.raftSide / 2 - raft.triangleHeight;
 		double maxY = distanceBetweenObstacles - raft.raftSide / 2;
@@ -94,10 +81,10 @@ private:
 				}	
 				CalculateAngles(gridWorld[i][j]);
 			}
-		}
+		}*/
 	}
 
-	void CalculateAngles(GraphVert& vert) {
+	void CalculateAngles(AngleGraphElem& vert) {
 		
 	}
 
@@ -107,5 +94,5 @@ private:
 	Raft raft;
 	std::vector<Segment> obstacles;
 
-	std::vector<std::vector<GraphVert>> gridWorld;
+	std::vector<AngleGraphElem> gridWorld;
 };
