@@ -6,8 +6,10 @@
 using namespace std;
 
 class AngleGraphElem{
+public:
   AngleGraphElem(const Vector2d& p_, const AngleSet& angleSet_) : p(p_), angleSet(angleSet_) {
   }
+  AngleGraphElem() {}
 
   /* Getting id function */
   int getId(void) const
@@ -45,10 +47,42 @@ class AngleGraphElem{
     neighbors.push_back(ID);
   } /* End of 'addNeighbor' function */
 
-private:
+  void setCurAngle(const Angle& ang){
+    curAngle = ang;
+  }
+
+  AngleSet& getAngleSet(){
+    return angleSet;
+  }
+
+  const Angle& getCurAngle() const {
+    return curAngle;
+  }
+
+  void setNeighbors(const vector<int> neighs){
+    neighbors = neighs;
+  }
+
+  void SetAngleSet(const AngleSet& angleSet_){
+    angleSet = angleSet_;
+  }
+
+
+  AngleGraphElem& operator= (AngleGraphElem& elem){
+    p = elem.getPos();
+    angleSet = elem.getAngleSet();
+    id = elem.getId();
+    neighbors = elem.getNeighbors();
+    curAngle = elem.curAngle;
+    curRealAngle = elem.curRealAngle;
+    return *this;
+  }
+
+public:
   int id;
   Vector2d p;
   AngleSet angleSet;
-  AngleSet curAngleSet;
+  Angle curAngle;
+  double curRealAngle;
   vector<int> neighbors;
 };

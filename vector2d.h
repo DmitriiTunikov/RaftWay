@@ -6,9 +6,22 @@ class Vector2d;
 
 class Vector2d {
 public:
+  Vector2d() {}
+
 	Vector2d(double x_, double y_) {
 		x = x_, y = y_;
 	}
+
+  bool operator==(Vector2d p) const
+  {
+    if (fabs(x - p.GetX()) > eps || fabs(y - p.GetY()) > eps)
+      return false;
+    return true;
+  }
+
+  Vector2d operator =(const Vector2d& vec) {
+    return Vector2d(x = vec.GetX(), y = vec.GetY());
+  }
 
 	void SetX(double x_) {
 		x = x_;
@@ -38,6 +51,8 @@ public:
 		return Vector2d(x * a, y * a);
 	}
 
+
+
 	double Lenght(void) const {
 		return sqrt(x * x + y * y);
 	}
@@ -53,9 +68,8 @@ public:
 	Vector2d Normalise(void) {
 		return *this * (1 / Lenght());
 	}
-	
-	
 private:
+  const double eps = 1e-10f;
 	double x, y;
 };
 
