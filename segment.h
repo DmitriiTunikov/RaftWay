@@ -18,16 +18,27 @@ public:
 	{
 	}
 
-	virtual void Rotate(double angle, const Vector2d& point) override
+  
+	void Rotate(double angle, const Vector2d& point) override
 	{
 		pBegin = (pBegin - point).Rotate(angle) + point;
 		pEnd = (pEnd - point).Rotate(angle) + point;
 	}
 
-	virtual void MoveParallel(const Vector2d& moveVec) override {
+	void MoveParallel(const Vector2d& moveVec) override {
 		pBegin = pBegin + moveVec;
 		pEnd = pEnd + moveVec;
 	}
+
+  Vector2d GetBegin() const
+  {
+    return pBegin;
+  }
+
+  Vector2d GetEnd() const
+  {
+    return pEnd;
+  }
 
 	
 public:

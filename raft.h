@@ -11,10 +11,12 @@
 
 class Raft {
 public:
-	Raft(Vector2d raftCenter_, Vector2d front_, double raftSide_, double triangleSide, double halfCircleRadius) 
-		: front(front_)
-		, raftCenter(raftCenter_)
-		, raftSide(raftSide_)
+	Raft(Vector2d &raftCenter_, Vector2d &front_, double raftSide_, double triangleSide_, double halfCircleRadius_) 
+		: front(front_),
+    raftCenter(raftCenter_),
+    raftSide(raftSide_),
+    triangleSide(triangleSide_),
+    halfCircleRadius(halfCircleRadius_)
 	{
 
 		Vector2d unitRaftSideX = front.Normalise().Rotate(-M_PI / 2);
@@ -75,10 +77,16 @@ public:
 
 	void Rotate(double angle) {
 		for (auto raftPart : sides) {
-			raftPart->Rotate(angle);
+			raftPart->Rotate(angle, /**/raftCenter);
 		}
 	}
 
+  void InitRelativeSides(void) {
+    Raft raft(Vector2d(0, 0), Vector2d(0, 1), raftSide, triangleSide, halfCircleRadius);
+    for (int i = 0; i < sides.size() - 1; i++) {
+      relativeSides.push_back(*(Segment *)sides[i]);
+    }
+  }
 
 	~Raft(void) {
 		for (int i = 0; i < sides.size(); i++) {
@@ -89,8 +97,11 @@ public:
 public:
 	double raftSide;
 	double triangleHeight;
+  double triangleSide;
+  double halfCircleRadius;
 	Vector2d front;
 	Vector2d raftCenter;
 
+  std::vector<Segment> relativeSides;
 	std::vector<Geometry *> sides;
 };

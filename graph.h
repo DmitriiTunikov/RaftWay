@@ -2,8 +2,6 @@
  * Motion planning problem project.
  *
  * FILE: graph.h
- * AUTHORS:
- *   Denisov Pavel
  * LAST UPDATE: 19.05.2018
  * NOTE: graph class declaration file
  */
