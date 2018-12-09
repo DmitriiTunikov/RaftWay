@@ -24,10 +24,12 @@ int main(void)
   double minRaftSide, maxRaftSide;
   double minTriangleSide, maxTriangleSide;
   double minHalfCircleRadius, maxHalfCircleRadius;
-  double epsilon = 0.001;
+  double epsilon = 0.1;
 
   world.ComputeWay(way, epsilon);
-  double maxSquare = 0;
+
+
+ /* double maxSquare = 0;
   for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
     for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
       for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
@@ -35,6 +37,6 @@ int main(void)
 
       }
     }
-  }
+  }*/
 
 }

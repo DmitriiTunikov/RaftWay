@@ -35,6 +35,8 @@ public:
 
 		//internal left
 		obstacles.push_back(Segment(center, center - unitY * (-raftSide - 2 * triangleHeight)));
+
+    raft.InitRelativeSides();
 	}
 
 	const std::vector<Segment>& GetObstacles(void) {
@@ -43,12 +45,15 @@ public:
 
 	
 	bool ComputeWay(std::vector<WayPoint>& wayRes, double epsilon) {
+    
 		// raft can't be inside canal
 		if (raft.raftSide + raft.triangleHeight > distanceBetweenObstacles)
 			return false;
 
-		//InitGrid();
-
+    InitGrid(epsilon);
+    if (Dijkstra::GetAllWays(start, goal, graph, came_from)){
+      Dijkstra::GetGoalWay(start, goal, came_from);
+    }
 		return true;
 	}
 
@@ -59,11 +64,12 @@ private:
 		double minY = -raft.raftSide / 2 - raft.triangleHeight;
 		double maxY = distanceBetweenObstacles - raft.raftSide / 2;
 
+
 		double distX = maxX - minX;
 		double distY = maxY - minY;
 
-		int gridXSize = distX / epsilon;
-		int gridYSize = distY / epsilon;
+		int gridXSize = (int)ceil(distX / epsilon);
+		int gridYSize = (int)ceil(distY / epsilon);
 
 		//init pos in grid
     int move = gridYSize;
@@ -73,16 +79,17 @@ private:
       move = gridYSize;
 			for (int i = 0; i < gridYSize; i++) {				
 				// point coordinate
-				Vector2d pos = Vector2d(minX + distX * i, (minY + distY * j));
+				Vector2d pos = Vector2d(minX + epsilon * j, (minY + epsilon * i));
         if (pos.GetY() < 0 && pos.GetX() > 0) {
           move--;
           breakFlag = true;
-          break;
+          continue;
         }
         //get angle set for current point
 				AngleSet angSet = CalculateAngles(pos);
         //add elem to graph
         graph.addElem(AngleGraphElem(pos, angSet));
+
         if (i != 0 && !breakFlag)
           graph.addLink(graph.getElements().size() - 1, graph.getElements().size() - 2);
         if (j != 0) {
@@ -95,6 +102,8 @@ private:
         breakFlag = false;
 			}
 		}
+    start = graph.getElements()[0];
+    goal = graph.getElements()[graph.getElements().size() - 2];
 	}
 
 
@@ -132,4 +141,7 @@ private:
 	Raft raft;
 	std::vector<Segment> obstacles;
   Graph<AngleGraphElem> graph;
+  AngleGraphElem start;
+  AngleGraphElem goal;
+  std::vector<AngleGraphElem> came_from;
 };

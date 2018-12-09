@@ -1,7 +1,7 @@
 #pragma once
 
+#include "Vector2d.h"
 #include "geometry.h"
-#include "point.h"
 
 
 class Segment : public Geometry {

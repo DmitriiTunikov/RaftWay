@@ -49,7 +49,7 @@ public:
   } /* End of 'getWeight' function */
 
   /* Getting array of vertices function */
-  std::vector<GraphElem> getElements(void)
+  std::vector<GraphElem>& getElements(void)
   {
     return _elements;
   } /* End of 'getElements' function */

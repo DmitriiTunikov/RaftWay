@@ -19,24 +19,24 @@
 namespace sup
 {
   // Contants
-  const float eps = 1e-4f;
-  const float pi = 3.14159265359f;
+  const double eps = 1e-4f;
+  const double pi = 3.14159265359f;
   using Vecd = Vector2d;
 
   /* Line structure */
   struct Line
   {
-    float _k, _b;
+    double _k, _b;
 
     /* Constructor */
-    Line(float k = 0, float b = 0) : _k(k), _b(b)
+    Line(double k = 0, double b = 0) : _k(k), _b(b)
     {
     } /* End of constructor */
   }; /* End of 'Line' structure */
 
 
   /* Getting f(x) by line structure */
-  inline float getFX(const Line &Line, const float X)
+  inline double getFX(const Line &Line, const double X)
   {
     return Line._k * X + Line._b;
   } /* End of 'getFX' function */

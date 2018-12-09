@@ -62,7 +62,7 @@ public:
 	}
 
 	Vector2d Rotate(double angle) {
-		return Vector2d(x * cos(angle) - y * sin(angle), x * sin(angle) + y * sin(angle));
+		return Vector2d(x * cos(angle) - y * sin(angle), x * sin(angle) + y * cos(angle));
 	}
 
 	Vector2d Normalise(void) {

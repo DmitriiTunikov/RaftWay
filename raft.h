@@ -83,13 +83,13 @@ public:
 
   void InitRelativeSides(void) {
     Raft raft(Vector2d(0, 0), Vector2d(0, 1), raftSide, triangleSide, halfCircleRadius);
-    for (int i = 0; i < sides.size() - 1; i++) {
-      relativeSides.push_back(*(Segment *)sides[i]);
+    for (unsigned int i = 0; i < sides.size() - 1; i++) {
+      relativeSides.push_back(*(Segment *)raft.sides[i]);
     }
   }
 
 	~Raft(void) {
-		for (int i = 0; i < sides.size(); i++) {
+		for (unsigned int i = 0; i < sides.size(); i++) {
 			delete sides[i];
 		}
 	}

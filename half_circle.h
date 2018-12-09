@@ -1,7 +1,6 @@
 #pragma once
 
 #include "geometry.h"
-#include "point.h"
 
 class HalfCircle : public Geometry {
 public:
