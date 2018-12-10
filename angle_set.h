@@ -29,6 +29,14 @@ public:
   void UnionSelf(const Angle& An){
     AngleVector res;
     AngleVector res1;
+    AngleVector res2;
+
+    if (_set.size() == 0)
+    {
+      _set.push_back(An);
+      return;
+    }
+
 
     for (Angle& AnglSelf : _set)
     {
@@ -58,7 +66,7 @@ public:
     return realAngles.size() > 0;
   }
 
-  void IntersectSelf(const Angle &An)
+  AngleVector IntersectSelf(const Angle &An)
   {
     AngleVector res;
     AngleVector res1;
@@ -68,15 +76,18 @@ public:
       res1 = AnglSelf.Intersect(An);
       res.insert(res.end(), res1.begin(), res1.end());
     }
-    _set = res;
+    return res;
   }
 
   void IntersectSetWithVector(const AngleVector &AnVec)
   {
+    AngleVector res;
     for (const Angle &AngleO : AnVec) 
     {
-      IntersectSelf(AngleO);
+      AngleVector resT = IntersectSelf(AngleO);
+      res.insert(res.end(), resT.begin(), resT.end());
     }
+    _set = res;
   }
 
   AngleVector & GetAngleSetVec( void )

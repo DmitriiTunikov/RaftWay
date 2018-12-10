@@ -1,4 +1,5 @@
 #pragma once
+
 #include <utility>
 #include <vector>
 #include <algorithm>
@@ -8,6 +9,21 @@
 #include <math.h>  
 
 const static double PI2 = M_PI * 2;
+const double EPSI = 0.0001;
+
+static inline bool Less(double a, double b)
+{
+  return a - EPSI <= b;
+}
+
+static inline bool More(double a, double b)
+{
+  return a + EPSI >= b;
+}
+
+static inline bool Equal(double a, double b){
+  return More(a, b) && Less(a, b);
+}
 
 class Angle
 {
@@ -25,10 +41,12 @@ public:
 
   Angle(double Start, double Finish) :
     start(Start), delta(abs(Finish - Start)),
-    isEmpty(false), isFull(false)
+    isEmpty(false), isFull(false),
+    isGood(true)
   {
-    if (delta >= PI2)
-    {
+    while (More(delta, PI2))
+      delta -= PI2;
+    if (Equal(delta, 0)){
       delta = PI2;
       isFull = true;
       start = 0;
@@ -43,104 +61,10 @@ public:
       start += PI2;
     while (start > PI2)
       start -= PI2;
-  }
 
-  /*
-  Angle IntersectGood(double a, double b, double c, double d)
-  {
-  if (a > d)
-  return Angle();
-  if (c > b)
-  return Angle();
-  /// Find intersection
-  if (a < c)
-  if (b < d)
-  return Angle(c, b);
-  else
-  return Angle(c, d);
-  else
-  if (b < d)
-  return Angle(a, b);
-  else
-  return Angle(a, d);
+    if (start + delta > PI2)
+      isGood = false;
   }
-
-  std::vector<Angle> UniteGood(double a, double b, double c, double d)
-  {
-  std::vector<Angle> res;
-  if (!IntersectGood(a, b, c, d).isEmpty){
-  res.push_back(Angle(min(a, c), max(b, d)));
-  return res;
-  }
-  else
-  {
-  res.push_back(Angle(a, b));
-  res.push_back(Angle(c, d));
-  return res;
-  }
-  }
-
-  std::vector<Angle> Unite( const Angle &An)
-  {
-  std::vector<Angle> res;
-
-  if (isEmpty && An.isEmpty)
-  {
-  return res;
-  }
-  else if (isEmpty)
-  {
-  return res.push_back(An);
-  }
-  else if (An.isEmpty)
-  {
-  return res.push_back(*this);
-  }
-
-  double a = start, b = start + delta;
-  double c = An.start, d = An.start + delta;
-
-  if ((b <= PI2 && d <= PI2) || (b > PI2 && d > PI2)) {
-  return UniteGood(a, b, c, d);
-  }
-
-  const Angle &norm = *this;
-  const Angle &wrong = An;
-  if (b > PI2)
-
-  std::swap(norm, wrong);
-
-  Angle part1 = Angle(wrong.start, PI2);
-  Angle part2 = Angle(0, wrong.start + delta - PI2);
-
-  if (norm.start > wrong.start + wrong.delta - PI2) {
-  res.push_back(Angle(wrong.start, norm.start + norm.delta));
-  }
-  else if (norm.start + norm.delta <= wrong.start) {
-  res.push_back(Angle(norm.start, wrong.start + wrong.delta - PI2));
-  }
-  else {
-  res.push_back(Angle(wrong.start, norm.start + norm.delta));
-  res.push_back(Angle(norm.start, wrong.start + wrong.delta - PI2));
-  }
-  return res;
-
-  }
-
-  std::vector<Angle> GetSimples(void) const
-  {
-  std::vector<Angle> res;
-  if (start + delta <= PI2) {
-  res.push_back(*this);
-  }
-  else {
-  res.push_back(Angle(start, PI2));
-  res.push_back(Angle(0, start + delta - PI2));
-  }
-  return res;
-  }
-  */
-
 
   static std::vector<Angle> IntersectGoodWithGood(const Angle &fst, const Angle &scnd)
   {
@@ -151,16 +75,16 @@ public:
     double c = scnd.start;
     double d = scnd.start + scnd.delta;
 
-    if (a <= c && d <= b) {
+    if (Less(a, c) && Less(d, b)) {
       res.push_back(Angle(c, d));
     }
-    else if (c <= a && b <= d) {
+    else if (Less(c, a) && Less(b, d)) {
       res.push_back(Angle(a, b));
     }
-    else if (c >= a && d >= b && b >= c) {
+    else if (More(c, a) && More(d, b) && More(b, c)) {
       res.push_back(Angle(c, b));
     }
-    else if (c <= a && d <= b && d >= a) {
+    else if (Less(c, a) && Less(d, b) && More(d, a)) {
       res.push_back(Angle(a, d));
     }
 
@@ -174,70 +98,74 @@ public:
     double a = good.start;
     double b = good.start + good.delta;
     double c = bad.start;
-    double d = bad.start + bad.delta;
+    double d = bad.start + bad.delta - PI2;
     std::vector<Angle> res;
 
-    if (c <= b && d >= a) {
-      res.push_back(Angle(a, d));
+    if (good.isFull) 
+    {
+      res.push_back(bad);
+    }
+
+    else if (Less(c, b) && More(c, a) && Less(d,a)) {
       res.push_back(Angle(c, b));
     }
 
-    else if (c <= b && c >= a && d <= a) {
-      res.push_back(Angle(c, b));
+    else if (Less(b, c) && Less(a , d) && Less(d, b)) {
+      res.push_back(Angle(a, d + PI2));
     }
 
-    else if (b <= c && a <= d && d <= b) {
-      res.push_back(Angle(a, d));
-    }
-
-    else if ((d >= b && c >= b) || (d <= a && c <= a)) {
+    else if ((More(d, b) && More(c , b)) || (Less(d, a) && Less(c, a))) {
       res.push_back(Angle(a, b));
     }
+    else if (Less(d, a) && Less(b, c)){
+      return res;
+    }
 
+    else if (Less(c, b) && More(d, a)) {
+      res.push_back(Angle(a, d + PI2));
+      res.push_back(Angle(c, b));
+    }
     else {
-      assert("Bad with good intersection failed");
+      assert(false && "Bad with good intersection failed");
     }
     return res;
   }
 
   static std::vector<Angle> IntersectBadWithBad(const Angle &fst, const Angle &scnd)
   {
-    assert(!(fst.isGood) && !(!scnd.isGood));
+    assert(!(fst.isGood) && !(scnd.isGood));
 
     double a = fst.start;
-    double b = fst.start + fst.delta;
+    double b = fst.start + fst.delta - PI2;
     double c = scnd.start;
-    double d = scnd.start + scnd.delta;
+    double d = scnd.start + scnd.delta - PI2;
     std::vector<Angle> res;
 
-    if (d >= a && c >= a) {
-      res.push_back(Angle(c, b));
-      res.push_back(Angle(a, d));
+    if (Less(d, b) && More(c, a)) {
+       res.push_back(scnd);
+     }
+
+    else if (More(d, b) && More(c, a) && Less(d,a)) {
+      res.push_back(Angle(c, b + PI2));
     }
 
-    else if (d <= b && c <= b) {
-      res.push_back(Angle(c, b));
-      res.push_back(Angle(a, d));
+    else if (Less(d, b) && Less(c, a) && More(c, b)) {
+      res.push_back(Angle(a, d + PI2));
     }
 
-    else if (d <= b && c >= a) {
-      res.push_back(scnd);
+    else if (Less(b, d) && Less(c, a)) {
+      res.push_back(Angle(a, b + PI2));
     }
-
-    else if (d >= b && c >= a && d <= a) {
-      res.push_back(Angle(c, b));
+    else if (More(d, a) && More(c, a)) {
+      res.push_back(Angle(c, b + PI2));
+      res.push_back(Angle(a, d + PI2));
     }
-
-    else if (d <= b && c <= a && c >= b) {
-      res.push_back(Angle(a, d));
+    else if (Less(d, b) && Less(c, b)) {
+      res.push_back(Angle(c, b + PI2));
+      res.push_back(Angle(a, d + PI2));
     }
-
-    else if (b <= d && c <= a) {
-      res.push_back(Angle(a, b));
-    }
-
     else {
-      assert("Bad with Bad Failed");
+      assert(false && "Bad with Bad Failed");
     }
     return res;
   }
@@ -271,19 +199,19 @@ public:
     double c = scnd.start;
     double d = scnd.start + scnd.delta;
 
-    if (a <= c && d <= b) {
+    if (Less(a, c) && Less(d, b)) {
       res.push_back(Angle(a, b));
     }
-    else if (c <= a && b <= d) {
+    else if (Less(c, a) && Less(b, d)) {
       res.push_back(Angle(c, d));
     }
-    else if (c >= a && d >= b && b >= c) {
+    else if (More(c, a) && More(d, b) && More(b, c)) {
       res.push_back(Angle(a, d));
     }
-    else if (c <= a && d <= b && d >= a) {
+    else if (Less(c, a) && Less(d, b) && More(d, a)) {
       res.push_back(Angle(c, b));
     }
-    else if (b <= c || a >= d) {
+    else if (Less(b, c) || More(a, d)) {
       res.push_back(Angle(a, b));
       res.push_back(Angle(c, d));
     }
@@ -298,67 +226,77 @@ public:
     double a = good.start;
     double b = good.start + good.delta;
     double c = bad.start;
-    double d = bad.start + bad.delta;
+    double d = bad.start + bad.delta - PI2;
     std::vector<Angle> res;
 
-    if (c <= b && d >= a) {
+    if (good.isFull)
+    {
+      res.push_back(good);
+    }
+    else if (Less(c, b) && More(d, a)) {
       res.push_back(Angle(0, PI2));
     }
 
-    else if (c <= b && c >= a && d <= a) {
-      res.push_back(Angle(a, d));
+    else if (Less(c, b) && More(c, a) && Less(d, a)) {
+      res.push_back(Angle(a, d + PI2));
     }
 
-    else if (b <= c && a <= d && d <= b) {
+    else if (Less(b, c) && Less(a, d) && Less(d, b)) {
       res.push_back(Angle(c, b));
     }
 
-    else if ((d >= b && c >= b) || (d <= a && c <= a)) {
-      res.push_back(Angle(c, d));
+    else if ((More(d, b) && More(c, b)) || (Less(d, a) && Less(c, a))) {
+      res.push_back(Angle(c, d + PI2));
     }
 
+    else if (More(a, d) && Less(b, c)) {
+      res.push_back(Angle(a, b));
+      res.push_back(Angle(c, d + PI2));
+    }
+
+
     else {
-      assert("Bad with good intersection failed");
+      assert(false && "Bad with good intersection failed");
     }
     return res;
   }
 
   static std::vector<Angle> UnionBadWithBad(const Angle &fst, const Angle &scnd)
   {
-    assert(!(fst.isGood) && !(!scnd.isGood));
+    assert(!(fst.isGood) && !(scnd.isGood));
 
     double a = fst.start;
-    double b = fst.start + fst.delta;
+    double b = fst.start + fst.delta - PI2;
     double c = scnd.start;
-    double d = scnd.start + scnd.delta;
+    double d = scnd.start + scnd.delta - PI2;
     std::vector<Angle> res;
 
-    if (d >= a && c >= a) {
+    if (Less(d, a) && More(c, a)) {
       res.push_back(Angle(0, PI2));
     }
 
-    else if (d <= b && c <= b) {
+    else if (Less(d, b) && Less(c, b)) {
       res.push_back(Angle(0, PI2));
     }
 
-    else if (d <= b && c >= a) {
-      res.push_back(Angle(a, b));
+    else if (Less(d, b) && More(c, a)) {
+      res.push_back(Angle(a, b + PI2));
     }
 
-    else if (d >= b && c >= a && d <= a) {
-      res.push_back(Angle(a, d));
+    else if (More(d, b) && More(c, a) && Less(d, a)) {
+      res.push_back(Angle(a, d + PI2));
     }
 
-    else if (d <= b && c <= a && c >= b) {
-      res.push_back(Angle(c, b));
+    else if (Less(d, b) && Less(c, a) && More(c, b)) {
+      res.push_back(Angle(c, b + PI2));
     }
 
-    else if (b <= d && c <= a) {
-      res.push_back(Angle(c, d));
+    else if (Less(b, d) && Less(c, a)) {
+      res.push_back(Angle(c, d + PI2));
     }
 
     else {
-      assert("Bad with Bad Failed");
+      assert(false && "Bad with Bad Failed");
     }
     return res;
   }
