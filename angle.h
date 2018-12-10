@@ -9,7 +9,7 @@
 #include <math.h>  
 
 const static double PI2 = M_PI * 2;
-const double EPSI = 0.0001;
+const double EPSI = 0.03;
 
 static inline bool Less(double a, double b)
 {
@@ -44,6 +44,10 @@ public:
     isEmpty(false), isFull(false),
     isGood(true)
   {
+    if (Equal(delta, 0)) {
+      isEmpty = true;
+      return;
+    }
     while (More(delta, PI2))
       delta -= PI2;
     if (Equal(delta, 0)){
@@ -172,6 +176,9 @@ public:
 
   std::vector<Angle> Intersect(const Angle &An)
   {
+    if (isEmpty || An.isEmpty)
+      return std::vector<Angle>();
+
     if (isGood) {
       if (An.isGood) {
         return Angle::IntersectGoodWithGood(*this, An);
@@ -271,7 +278,7 @@ public:
     double d = scnd.start + scnd.delta - PI2;
     std::vector<Angle> res;
 
-    if (Less(d, a) && More(c, a)) {
+    if (More(d, a) && More(c, a)) {
       res.push_back(Angle(0, PI2));
     }
 
@@ -304,6 +311,14 @@ public:
 
   std::vector<Angle> Union(const Angle &An)
   {
+    if (isEmpty)
+      if (An.isEmpty)
+        return std::vector<Angle>();
+      else
+        return std::vector<Angle>{An};
+    else if (An.isEmpty)
+      return std::vector<Angle>{*this};
+
     if (isGood) {
       if (An.isGood) {
         return Angle::UnionGoodWithGood(*this, An);

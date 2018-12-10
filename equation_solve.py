@@ -18,7 +18,7 @@ def calculate_angles(a, b, d, k):
         return a * (co ** 2) + b * (so ** 2) + d * co + k * so
 
     pi2 = 2 * pi
-    x_range = np.linspace(0, pi2, 1000)
+    x_range = np.linspace(0, pi2, 100)
     y_range = f(x_range)  # type: float
 
     pfit = np.polyfit(x_range, y_range, 5)

@@ -9,16 +9,6 @@
 #include <direct.h>
 #include <algorithm>
 
-
-#include <math.h>
-#ifdef _DEBUG
-#undef _DEBUG
-#include <Python.h>
-#define _DEBUG
-#else
-#include <Python.h>
-#endif
-
 void QuadricEquationSolveMore(double a, double b, double d, double e, AngleVector& moreRes, AngleVector& lessRes);
 Angle LinearEquationSolveMore(double SinCoef,
   double CosCoef,
@@ -57,29 +47,26 @@ static bool EquationSolve( const Segment &Seg,
   
   Res = AngleSet(res1);
   Res.UnionSetWithVector(res2);
-  
-  Vector2d aa = Relative.GetEnd() - Relative.GetBegin();
-  double a = aa.GetX();
-  double b = aa.GetY();
-  Vector2d kk = Seg.GetBegin() - Center;
-  k = kk.GetX();
-  l = kk.GetY();
-
-
-  double cos2Coef = -a * Relative.GetBegin().GetY() + Relative.GetBegin().GetX() * b;//-a.GetX() * Relative.GetBegin().GetY() + Relative.GetBegin().GetX() * a.GetY();
-  double sin2Coef = b * Relative.GetBegin().GetX() - a * Relative.GetBegin().GetY();//a.GetY() * Relative.GetBegin().GetX() - a.GetX() * Relative.GetBegin().GetY();
-  double sinCoef = -b * l - a * k;//-a.GetY() * kk.GetY() - a.GetX() * kk.GetX();
-  double cosCoef = a * l - b * k;//a.GetX() * kk.GetY() - a.GetY() * kk.GetX();
 
   //first point
+  Vector2d a = Relative.GetEnd() - Relative.GetBegin();
+  double ax = a.GetX(), ay = a.GetY();
+  Vector2d kk = Seg.GetBegin() - Center;
+  double kx = kk.GetX();
+  double ky = kk.GetY();
+  double cos2Coef = -ax * Relative.GetBegin().GetY() + Relative.GetBegin().GetX() * ay;
+  double sin2Coef = ay * Relative.GetBegin().GetX() - ax * Relative.GetBegin().GetY();
+  double sinCoef = -ay * ky - ax * kx;
+  double cosCoef = ax * ky - ay * kx;
   AngleVector moreRes1, lessRes1;
   QuadricEquationSolveMore(cos2Coef, sin2Coef, cosCoef, sinCoef, moreRes1, lessRes1);
-  //second point
+
+  //second point 
   kk = Seg.GetEnd() - Center;
-  k = kk.GetX();
-  l = kk.GetY();
-  cosCoef = -b * l - a * k;//a.GetX() * kk.GetY() - a.GetY() * kk.GetX();
-  sinCoef = a * l - b * k;//-a.GetY() * kk.GetY() - a.GetX() * kk.GetX();
+  kx = kk.GetX();
+  ky = kk.GetY();
+  sinCoef = -ay * ky - ax * kx;
+  cosCoef = ax * ky - ay * kx;
   AngleVector moreRes2, lessRes2;
   QuadricEquationSolveMore(cos2Coef, sin2Coef, cosCoef, sinCoef, moreRes2, lessRes2);
 
@@ -93,8 +80,8 @@ static bool EquationSolve( const Segment &Seg,
   moreRes1Set.UnionSetWithVector(lessRes1Set.GetAngleSetVec());
 
   //intersect Res with Res2
-  Res.IntersectSetWithVector(moreRes1Set.GetAngleSetVec());
-
+  Res.UnionSetWithVector(moreRes1Set.GetAngleSetVec());
+  //delete empty
   return !Res.Empty();
 }
 
@@ -190,7 +177,7 @@ void QuadricEquationSolveMore(double a, double b, double d, double e, AngleVecto
   std::sort(anglesDouble.begin(), anglesDouble.end());
   
   //center
-  for (int i = 0; i < anglesDouble.size() - 1; i++){
+  for (unsigned i = 0; i < anglesDouble.size() - 1; i++){
     double center = (anglesDouble[i] + anglesDouble[i + 1]) / 2;
 
     if (CalculateQuadric(center, a, b, d, e) > 0)

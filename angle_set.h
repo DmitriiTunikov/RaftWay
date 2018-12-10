@@ -24,26 +24,37 @@ public:
     {
       UnionSelf(AngleO);
     }
+    deleteEmptyAngles();
+  }
+
+  void deleteEmptyAngles(){
+    for (unsigned i = 0; i < _set.size();){
+      if (_set[i].isEmpty){
+        _set.erase(_set.begin() + i);
+      }
+      else
+        i++;
+    }
   }
 
   void UnionSelf(const Angle& An){
-    AngleVector res;
-    AngleVector res1;
-    AngleVector res2;
-
     if (_set.size() == 0)
     {
       _set.push_back(An);
       return;
     }
 
-
-    for (Angle& AnglSelf : _set)
+    for (unsigned i = 0; i < _set.size(); i++)
     {
-      res1 = AnglSelf.Union(An);
-      res.insert(res.end(), res1.begin(), res1.end());
+      AngleVector un = _set[i].Union(An);
+      if (un.size() == 2)
+        continue;
+      _set.erase(_set.begin() + i);
+      UnionSelf(un[0]);
+      return;
     }
-    _set = res;
+
+    _set.push_back(An);
   }
 
   bool Intersected(const Angle &Ang, AngleSet &Res, std::vector <double> &realAngles)
@@ -88,6 +99,7 @@ public:
       res.insert(res.end(), resT.begin(), resT.end());
     }
     _set = res;
+    deleteEmptyAngles();
   }
 
   AngleVector & GetAngleSetVec( void )

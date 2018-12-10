@@ -86,7 +86,10 @@ private:
           continue;
         }
         //get angle set for current point
+        cout << j << " " << i << endl;
+        double t = clock();
 				AngleSet angSet = CalculateAngles(pos);
+        cout << (clock() - t) / CLOCKS_PER_SEC << endl;
         //add elem to graph
         graph.addElem(AngleGraphElem(pos, angSet));
 
