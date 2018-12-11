@@ -9,7 +9,7 @@
 #include <math.h>  
 
 const static double PI2 = M_PI * 2;
-const double EPSI = 0.03;
+const double EPSI = 0.005;
 
 static inline bool Less(double a, double b)
 {
@@ -45,9 +45,11 @@ public:
     isGood(true)
   {
     if (Equal(delta, 0)) {
-      delta = PI2;
-      start = 0;
-      isEmpty = true;
+      delta = 0;
+      while (start < 0)
+        start += PI2;
+      while (start > PI2)
+        start -= PI2;
       return;
     }
     while (More(delta, PI2))

@@ -35,7 +35,13 @@ int main(int argc, char* argv[])
   std::vector<WayPoint> way;
   World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.3);
   double t = clock();
+
   world.ComputeWay(way, 0.01);
+
+  for (WayPoint &p : way)
+  {
+    cout << p.pos.GetX() << " " << p.pos.GetY() << endl;
+  }
   t = (clock() - t) / CLOCKS_PER_SEC;
   cout << "Full build time: " << t << endl;
 
