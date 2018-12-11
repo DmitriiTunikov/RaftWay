@@ -45,6 +45,8 @@ public:
     isGood(true)
   {
     if (Equal(delta, 0)) {
+      delta = PI2;
+      start = 0;
       isEmpty = true;
       return;
     }
@@ -132,6 +134,11 @@ public:
     else {
       assert(false && "Bad with good intersection failed");
     }
+
+    if (res.size() == 1 && Equal(res[0].delta, PI2)){
+      res.pop_back();
+    }
+
     return res;
   }
 

@@ -1,20 +1,51 @@
 #include "world.h"
 #include <string>
 
-int main(void)
+//#include "win.h"
+//#include "anim.h"
+#include "solve_nonlinear_equation.h"
+
+//static World world(1, Vector2d(-0.5, -0.5), Vector2d(0, 1), 0.4, 0.1, 0.1);
+
+static void Draw()
 {
-  Angle sos = LinearEquationSolveMore(1, -1, 0);
+  //Anim2d::Start();  
+  //
+  ////Draw world
+  //for (unsigned i = 0; i < world.GetObstacles().size(); i++)
+  //  Anim2d::DrawSegment(world.GetObstacles()[i], Red, 1);
+  //
+  //for (unsigned i = 0; i < world.raft.sides.size() - 1; i++)
+  //  Anim2d::DrawSegment(*(Segment *)world.raft.sides[i], Red, 1);
+  //
+  //
+  //Anim2d::End();
+}
 
-  AngleSet res;
-  EquationSolve(Segment(Vector2d(-1, -1), Vector2d(-1, 0.5)), Vector2d(-.95, 0.5), Segment(Vector2d(0, -1), Vector2d(0, 1)), res);
+int main(int argc, char* argv[])
+{
+  //win::Win::Create(&argc, argv, "Hello");
+  //win::Win::DisplayFuncSet(Draw);
+  //win::Win::IdleFuncSet(Draw);
+  //
+  //win::Win::Run();
+  //
+  //AngleSet res;
+  //EquationSolve(Segment(Vector2d(-1, -1), Vector2d(-1, 1)), Vector2d(-0.95, 0), Segment(Vector2d(-.05, -1), Vector2d(-.05, 1)), res);
   std::vector<WayPoint> way;
-  World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.1);
-  double minRaftSide, maxRaftSide;
-  double minTriangleSide, maxTriangleSide;
-  double minHalfCircleRadius, maxHalfCircleRadius;
-  double epsilon = 0.1;
+  World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.3);
+  double t = clock();
+  world.ComputeWay(way, 0.01);
+  t = (clock() - t) / CLOCKS_PER_SEC;
+  cout << "Full build time: " << t << endl;
 
-  world.ComputeWay(way, epsilon);
+  //double minRaftSide, maxRaftSide;
+  //double minTriangleSide, maxTriangleSide;
+  //double minHalfCircleRadius, maxHalfCircleRadius;
+  //double epsilon = 0.1;
+  system("pause");
+
+
 
  /* double maxSquare = 0;
   for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {

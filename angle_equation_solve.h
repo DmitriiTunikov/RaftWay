@@ -8,6 +8,7 @@
 #include <stdio.h> 
 #include <direct.h>
 #include <algorithm>
+#include "solve_nonlinear_equation.h"
 
 void QuadricEquationSolveMore(double a, double b, double d, double e, AngleVector& moreRes, AngleVector& lessRes);
 Angle LinearEquationSolveMore(double SinCoef,
@@ -138,35 +139,15 @@ double CalculateQuadric(double x, double a, double b,  double d, double e)
   return a * co * co + b * si * si + d * co + e * si;
 }
 
-string imp1 = "from math import pi";
-string sl = "\n";
-
 void QuadricEquationSolveMore(double a, double b, double d, double e, AngleVector& moreRes, AngleVector& lessRes)
 {
-  char current_work_dir[FILENAME_MAX];
-  _getcwd(current_work_dir, sizeof(current_work_dir));
-  string curDir(current_work_dir);
-  string resFile = "res.txt";
+  std::function<double(double)> func = [a, b, d, e](double x){double co = cos(x), si = sin(x); return a * co * co + b * si * si + d * co + e * si;};
 
-  //solve equation and write res to file resFile
-  std::string s("C:\\Python27\\python \"" + curDir + "\\equation_solve.py\" " + std::to_string(a) + " " + std::to_string(b) 
-   + " " + std::to_string(d) + " " + std::to_string(e) + " " + resFile);
-  system(s.c_str());
-
-  //read res
-  std::ifstream resF(resFile);
-  int angleCount = 0;
-  resF >> angleCount;
-  vector<double> anglesDouble;
-  for (int k = 0; k < angleCount; k++){
-    double d = 0;
-    resF >> d;
-    anglesDouble.push_back(d);
-  }
-  resF.close();
-
+  vector<double> anglesDouble = FindRoots(func, 0, PI2, 0.0001, 2);
+  
   if (anglesDouble.size() == 0)
   {
+
     if (CalculateQuadric(M_PI, a, b, d, e) > 0)
       moreRes.push_back(Angle(0, PI2));
     else

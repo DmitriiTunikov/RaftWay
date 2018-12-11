@@ -31,10 +31,10 @@ public:
 			raftSide + 2 * triangleHeight, leftUp.GetY()));
 
 		//inetrnal up
-		obstacles.push_back(Segment(center, center + unitX * (raftSide + 2 * triangleHeight)));
+		obstacles.push_back(Segment(center, center + Vector2d(1, 0) * (raftSide + 2 * triangleHeight)));
 
 		//internal left
-		obstacles.push_back(Segment(center, center - unitY * (-raftSide - 2 * triangleHeight)));
+		obstacles.push_back(Segment(center, center - Vector2d(0, 1) * (raftSide + 2 * triangleHeight)));
 
     raft.InitRelativeSides();
 	}
@@ -86,10 +86,10 @@ private:
           continue;
         }
         //get angle set for current point
-        cout << j << " " << i << endl;
-        double t = clock();
-				AngleSet angSet = CalculateAngles(pos);
-        cout << (clock() - t) / CLOCKS_PER_SEC << endl;
+        //cout << j << " " << i << endl;
+        //double t = clock();
+				AngleSet angSet;// empty set to fill in thread  = CalculateAngles(pos);
+        //cout << (clock() - t) / CLOCKS_PER_SEC << endl;
         //add elem to graph
         graph.addElem(AngleGraphElem(pos, angSet));
 
@@ -105,16 +105,55 @@ private:
         breakFlag = false;
 			}
 		}
+
+    // Caclculate points angles
+    double t = clock();
+    vector<thread *> Threads;
+    unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
+    for (unsigned i = 0; i < concurentThreadsSupported && i < graph.getElements().size(); i++)
+    {
+      AngleSet &angleSet = graph.getElements()[i].angleSet;
+      Vector2d pos = graph.getElements()[i].getPos();
+      auto calc = [this](Vector2d pos, AngleSet &res) {this->CalculateAngles(pos, res);};
+      Threads.push_back(new std::thread(calc, std::ref(pos), std::ref(angleSet)));
+    }
+
+    unsigned j = concurentThreadsSupported, i = 0;
+    while (j < graph.getElements().size())
+    {
+      for (i = 0; i < concurentThreadsSupported && i + j < graph.getElements().size(); i++)
+      {
+        Threads[i]->join();
+        delete Threads[i];
+
+        AngleSet &angleSet = graph.getElements()[i + j].angleSet;
+        Vector2d pos = graph.getElements()[i + j].getPos();
+        auto calc = [this](Vector2d pos, AngleSet &res) {this->CalculateAngles(pos, res);};
+        Threads[i] = new std::thread(calc, pos, std::ref(angleSet));
+      }
+      j += i;
+    }
+
+    for (thread* (thr) : Threads)
+    {
+      thr->join();
+      delete thr;
+    }
+    Threads.clear();
+
+    t = (clock() - t) / CLOCKS_PER_SEC;
+    cout << "Threads full time: " << t << endl;
+    cout << "Points count: " << graph.getElements().size() << endl;
+    cout << "Threads average time: " << t / graph.getElements().size() << endl;
+    
     start = graph.getElements()[0];
     goal = graph.getElements()[graph.getElements().size() - 2];
 	}
 
 
 
-	AngleSet CalculateAngles(Vector2d& pos) 
+	void CalculateAngles(Vector2d& pos, AngleSet &res)
   {
-    AngleSet res;
-
     for (const Segment &Relative : raft.relativeSides)
     {
       for (const Segment &Obstacle : obstacles)
@@ -122,7 +161,8 @@ private:
         AngleSet curRes;
         if (!EquationSolve(Obstacle, pos, Relative, curRes))
         {
-          return AngleSet();
+          res.GetAngleSetVec().clear();
+          return;
         }
         if (res.Empty())
           res = AngleSet(curRes);
@@ -130,16 +170,14 @@ private:
         {
           res.IntersectSetWithVector(curRes.GetAngleSetVec());
           if (res.Empty())
-            return AngleSet();
+            return;
         }
       }
     }
-
-    return res;
 	}
 
 
-private:
+public:
 	double distanceBetweenObstacles;
 	Raft raft;
 	std::vector<Segment> obstacles;

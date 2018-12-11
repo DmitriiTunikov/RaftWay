@@ -51,7 +51,10 @@ public:
 		return Vector2d(x * a, y * a);
 	}
 
-
+  Vector2d GetPerp() const
+  {
+    return Vector2d(y, x);
+  }
 
 	double Lenght(void) const {
 		return sqrt(x * x + y * y);
