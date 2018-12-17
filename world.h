@@ -86,10 +86,11 @@ private:
           continue;
         }
         //get angle set for current point
-        //cout << j << " " << i << endl;
-        //double t = clock();
-				AngleSet angSet;// empty set to fill in thread  = CalculateAngles(pos);
-        //cout << (clock() - t) / CLOCKS_PER_SEC << endl;
+        cout << j << " " << i << endl;
+        double t = clock();
+				AngleSet angSet;
+        CalculateAngles(pos, angSet);// empty set to fill in thread  = CalculateAngles(pos);
+        cout << (clock() - t) / CLOCKS_PER_SEC << endl;
         //add elem to graph
         graph.addElem(AngleGraphElem(pos, angSet));
 
@@ -107,7 +108,7 @@ private:
 		}
 
     // Caclculate points angles
-    double t = clock();
+    /*double t = clock();
     vector<thread *> Threads;
     unsigned concurentThreadsSupported = std::thread::hardware_concurrency();
     for (unsigned i = 0; i < concurentThreadsSupported && i < graph.getElements().size(); i++)
@@ -144,7 +145,7 @@ private:
     t = (clock() - t) / CLOCKS_PER_SEC;
     cout << "Threads full time: " << t << endl;
     cout << "Points count: " << graph.getElements().size() << endl;
-    cout << "Threads average time: " << t / graph.getElements().size() << endl;
+    cout << "Threads average time: " << t / graph.getElements().size() << endl;*/
     
     start = graph.getElements()[0];
     goal = graph.getElements()[graph.getElements().size() - 2];
@@ -154,10 +155,12 @@ private:
 
 	void CalculateAngles(Vector2d& pos, AngleSet &res)
   {
+    int i = 0;
     for (const Segment &Relative : raft.relativeSides)
     {
       for (const Segment &Obstacle : obstacles)
       {
+        i++;
         AngleSet curRes;
         if (!EquationSolve(Obstacle, pos, Relative, curRes))
         {

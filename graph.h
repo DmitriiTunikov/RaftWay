@@ -9,6 +9,7 @@
 #pragma once
 #include <vector>
 #include "support.h"
+#include <math.h>
 
 /* Graph class */
 template<class GraphElem, typename WeightT = double>
@@ -45,7 +46,9 @@ public:
   /* Getting weight between two vertices function */
   WeightT getWeight(int start, int end)
   {
-    return 1.;
+    //return distance betweeen graph elems
+    return sqrt(pow(_elements[start].getPos().GetX() - _elements[end].getPos().GetY(), 2)
+    + pow(_elements[start].getPos().GetY() - _elements[end].getPos().GetY(), 2))
   } /* End of 'getWeight' function */
 
   /* Getting array of vertices function */

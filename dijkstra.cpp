@@ -46,6 +46,7 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
     AngleGraphElem startNew;
     startNew = start;
     startNew.setCurAngle(a);
+    startNew.setCurRealAngle(startNew.getCurAngle());
     frontier.push(startNew, 0);
   }
 
@@ -60,7 +61,8 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
   {
     AngleGraphElem current = frontier.pop();
 
-    if (current.getPos() == goal.getPos())
+    if (current.getPos() == goal.getPos() &&
+    (current.getCurRealAngle() > 3. * M_PI / 2 && current.getCurRealAngle() < PI2))
       return true;
     //add neighbors to frontier 
     std::vector<int> neighbors = current.getNeighbors();
@@ -70,10 +72,10 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
       if (graph_vert[next].getAngleSet().GetAngleSetVec().size() == 0)
         continue;
       //check cost of this move
-      double new_cost = cost_so_far[current.getId()] + graph.getWeight(current.getId(), next);
+      double new_cost = cost_so_far[current.getId()] + 1.;
       
       AngleSet angs;
-      std::vector <double> realAngles;
+      std::vector <Angle> realAngles;
       //if algorithm wasn't at this point with some angle -> try to visit this point
       if (graph_vert[next].getAngleSet().Intersected(current.getCurAngle(), angs, realAngles)){
 
@@ -90,7 +92,7 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
           
           //set new front elem cur angle
           newFrontElem.setCurAngle(angsVec[i]);
-          newFrontElem.curRealAngle = realAngles[i];
+          newFrontElem.setCurRealAngle(realAngles[i]);
           
           //push it to front
           frontier.push(newFrontElem, 1.0f / priority);

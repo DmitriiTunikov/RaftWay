@@ -24,7 +24,7 @@ public:
   } /* End of 'setId' function */
 
     /* Getting position function */
-  Vector2d getPos(void) const
+  const Vector2d& getPos(void) const
   {
     return p;
   } /* End of 'getPos' function */
@@ -53,6 +53,24 @@ public:
 
   AngleSet& getAngleSet(){
     return angleSet;
+  }
+
+  void setCurRealAngle(const Angle& an){
+    double res;
+    double start = an.start;
+    //bad angle
+    if (an.start + an.delta < an.start)
+      curRealAngle = (2 * an.start  + an.delta) / 2 - PI2;
+    else//good angle
+      curRealAngle = (2 * an.start  + an.delta) / 2;
+  }
+
+  void setCurRealAngle(const double an){
+    curRealAngle = an;
+  }
+
+  double getCurRealAngle() const{
+    return curRealAngle;
   }
 
   const Angle& getCurAngle() const {

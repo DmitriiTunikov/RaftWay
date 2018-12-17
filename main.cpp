@@ -33,10 +33,10 @@ int main(int argc, char* argv[])
   //AngleSet res;
   //EquationSolve(Segment(Vector2d(-1, -1), Vector2d(-1, 1)), Vector2d(-0.95, 0), Segment(Vector2d(-.05, -1), Vector2d(-.05, 1)), res);
   std::vector<WayPoint> way;
-  World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.3);
+  World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.1);
   double t = clock();
 
-  world.ComputeWay(way, 0.01);
+  world.ComputeWay(way, 0.1);
 
   for (WayPoint &p : way)
   {

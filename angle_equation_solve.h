@@ -100,8 +100,8 @@ Angle LinearEquationSolveMore(double SinCoef,
                               double RightPart)
 {
   double b = SinCoef,
-         a = CosCoef,
-         c = RightPart;
+    a = CosCoef,
+    c = RightPart;
 
   double mult = 1.0 / sqrt(a * a + b * b);
 
@@ -114,6 +114,7 @@ Angle LinearEquationSolveMore(double SinCoef,
     else
       return Angle();
   a *= mult;
+  b *= mult;
   // Solve division problems
   if (abs(a) > 1.0)
     a = Signum(a);
@@ -122,14 +123,10 @@ Angle LinearEquationSolveMore(double SinCoef,
   // alpha = acos(a)
   double alpha = acos(a);
   double phi = acos(c);
-  double start = -phi + alpha;
-  double end = phi + alpha;
+  if (Signum(sin(alpha)) != Signum(b))
+    alpha = -alpha;
 
-  if (getSinCosVal((start + end) / 2, SinCoef, CosCoef, RightPart) > 0)
-    return Angle(start, end);
-  else
-    return Angle(-phi - alpha, phi - alpha);
-
+  return Angle(-phi - alpha, phi - alpha);
 }
 
 double CalculateQuadric(double x, double a, double b,  double d, double e)

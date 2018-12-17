@@ -5,6 +5,7 @@
 #include <math.h>
 #include "angle.h"
 #include <assert.h>
+using namespace std;
 
 using AngleVector = std::vector<Angle>;
 
@@ -57,7 +58,20 @@ public:
     _set.push_back(An);
   }
 
-  bool Intersected(const Angle &Ang, AngleSet &Res, std::vector <double> &realAngles)
+  AngleVector ComplementSelf() const {
+    AngleSet res;
+    //initially complement is 0 -> 2pi angle
+    res._set.push_back(Angle(0, PI2));
+
+    //get all complements and intersect with current res
+    for (const Angle& an : _set){
+      Angle complementAn = an.Ñomplement();
+      res = res.IntersectSelf(complementAn);
+    }
+    return res._set;
+  }
+
+  bool Intersected(const Angle &Ang, AngleSet &Res, std::vector <Angle> &realAngles)
   {
     Res._set.clear();
 
@@ -71,11 +85,45 @@ public:
       }
 
       Res._set.push_back(_set[i]);
-      realAngles.push_back(inter[0].start + inter[0].delta / 2);
+      //realAngles.push_back(inter[0].start + inter[0].delta / 2);
+      realAngles.push_back(inter[0]);
       _set.erase(_set.begin() + i);
     }
     return realAngles.size() > 0;
   }
+
+  static std::vector<Angle> UnionBadWithGood(const Angle &bad, const Angle &good)
+  {
+    assert(!(bad.isGood) && good.isGood);
+
+    Angle realBad = good.Ñomplement();
+    Angle realGood = bad.Ñomplement();
+
+    vector<Angle> goods1 = Angle::getGoods(realBad);
+    vector<Angle> goods2{ realGood };
+
+    //get intersect res
+    AngleSet interRes(Angle::IntersectGoodVecWithGoodVec(goods1, goods2));
+    //get complement for vector<Angle> interRes
+    return interRes.ComplementSelf();
+  }
+
+  static std::vector<Angle> UnionBadWithBad(const Angle &fst, const Angle &scnd)
+  {
+    assert(!(fst.isGood) && !(scnd.isGood));
+
+    Angle realGood1 = fst.Ñomplement();
+    Angle realGood2 = scnd.Ñomplement();
+
+    vector<Angle> goods1{ realGood1 };
+    vector<Angle> goods2{ realGood2 };
+
+    //get intersect res
+    AngleSet interRes(Angle::IntersectGoodVecWithGoodVec(goods1, goods2));
+    //get complement for vector<Angle> interRes
+    return interRes.ComplementSelf();
+  }
+
 
   AngleVector IntersectSelf(const Angle &An)
   {
