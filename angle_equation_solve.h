@@ -123,8 +123,33 @@ Angle LinearEquationSolveMore(double SinCoef,
   // alpha = acos(a)
   double alpha = acos(a);
   double phi = acos(c);
-  if (Signum(sin(alpha)) != Signum(b))
+  
+  double arcsin1 = asin(b);
+  double arccos1 = acos(a);
+  double arcsin2 = M_PI - asin(b);
+  double arccos2 = -acos(a);
+
+  /*if (a > 0 && b >= 0) {
+    alpha = arcsin1;
+  } else if (a < 0 && b >= 0) {
+    alpha = arccos1;
+  } else if (a < 0 && b <= 0) {
+    alpha = arccos2;
+  } else if (a > 0 && b <= 0) {
+    alpha = arcsin1;
+  } else if (a == 0 && b > 0) {
+    alpha = arccos2;
+  } else if (a == 0 && b < 0) {
+    alpha == arccos1;
+  }*/
+
+  if (Signum(sin(alpha)) != Signum(-b))
     alpha = -alpha;
+
+  //if (arccos > M_PI / 2 && arcsin > 0)
+  //  alpha = -alpha;
+  //else if (arccos < M_PI / 2 && arcsin < 0)
+  //  alpha = -alpha;
 
   return Angle(-phi - alpha, phi - alpha);
 }

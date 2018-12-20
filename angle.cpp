@@ -152,6 +152,13 @@ std::vector<Angle> Angle::UnionBadWithGood(const Angle &bad, const Angle &good)
 {
   assert(!(bad.isGood) && good.isGood);
 
+  if (good.delta == 0) {
+    if (IntersectBadWithGood(bad, good).size() == 0) {
+      return AngleVector {bad, good}; 
+    }
+    return AngleVector {bad};
+  }
+
   Angle realBad = good.Ñomplement();
   Angle realGood = bad.Ñomplement();
 

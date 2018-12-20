@@ -1,66 +1,68 @@
 #include "world.h"
 #include <string>
 
-//#include "win.h"
-//#include "anim.h"
 #include "solve_nonlinear_equation.h"
 
-//static World world(1, Vector2d(-0.5, -0.5), Vector2d(0, 1), 0.4, 0.1, 0.1);
+static const double sqr34 = sqrt(3) / 4;
 
-static void Draw()
+static const string fileName = "calculate.txt";
+static const string fileNameCalculated = "last_calculated.txt";
+static const string wayFileName = "way.txt";
+
+inline static double Square(double raftSide, double triangleSide, double CircleRadius)
 {
-  //Anim2d::Start();  
-  //
-  ////Draw world
-  //for (unsigned i = 0; i < world.GetObstacles().size(); i++)
-  //  Anim2d::DrawSegment(world.GetObstacles()[i], Red, 1);
-  //
-  //for (unsigned i = 0; i < world.raft.sides.size() - 1; i++)
-  //  Anim2d::DrawSegment(*(Segment *)world.raft.sides[i], Red, 1);
-  //
-  //
-  //Anim2d::End();
+  return raftSide * raftSide + sqr34 * triangleSide * triangleSide - M_PI * CircleRadius * CircleRadius / 2;
 }
 
 int main(int argc, char* argv[])
 {
-  //win::Win::Create(&argc, argv, "Hello");
-  //win::Win::DisplayFuncSet(Draw);
-  //win::Win::IdleFuncSet(Draw);
-  //
-  //win::Win::Run();
-  //
-  //AngleSet res;
-  //EquationSolve(Segment(Vector2d(-1, -1), Vector2d(-1, 1)), Vector2d(-0.95, 0), Segment(Vector2d(-.05, -1), Vector2d(-.05, 1)), res);
+  double epsi = 0.01;
   std::vector<WayPoint> way;
-  World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.4, 0.1, 0.1);
-  double t = clock();
+  double maxSquare = 0;
+  //double raftSideGlobal, triangleSideGlobal, circleGlobal;
 
-  world.ComputeWay(way, 0.1);
+  //ifstream fin(fileName);
+  //
+  //fin >> raftSideGlobal >> triangleSideGlobal >> circleGlobal >> maxSquare;
+  //
+  //fin.close();
 
-  for (WayPoint &p : way)
-  {
-    cout << p.pos.GetX() << " " << p.pos.GetY() << endl;
-  }
-  t = (clock() - t) / CLOCKS_PER_SEC;
-  cout << "Full build time: " << t << endl;
+  World world(1, epsi);
 
-  //double minRaftSide, maxRaftSide;
-  //double minTriangleSide, maxTriangleSide;
-  //double minHalfCircleRadius, maxHalfCircleRadius;
-  //double epsilon = 0.1;
-  system("pause");
+  for (double raftSide = 1.0 - epsi; raftSide > 0; raftSide -= epsi)
+    for (double triangleSide = raftSide; triangleSide >= 0; triangleSide -= epsi)
+      for (double circle = 0; circle <= 0.5 * raftSide; circle += epsi)
+      {
+        double curSquare = Square(raftSide, triangleSide, circle);
+        if (curSquare <= maxSquare)
+          continue;
+        world.UpdateWorld(raftSide, triangleSide, circle);
+        cout << raftSide << " " << triangleSide << " " << circle << endl;
+        if (world.ComputeWay(way))
+        {
+          cout << "Way found" << endl;
 
+          maxSquare = curSquare;
 
-
- /* double maxSquare = 0;
-  for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
-    for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
-      for (double raftSide = minRaftSide; raftSide <= maxRaftSide; raftSide += epsilon) {
-        //World world(1, Vector2d(0, 0), Vector2d(0, 1), 0.35, 0.05, 0.1);
-
+          // Write out data
+          ofstream fout(fileName);
+          fout << raftSide << " " << triangleSide << " " << circle << " ";
+          fout << maxSquare;
+          fout.close();
+          // write way data
+          ofstream foutWay(wayFileName);
+          foutWay << way.size() << endl;
+          for (WayPoint &p : way)
+          {
+            foutWay << p.pos.GetX() << " " << p.pos.GetY() << " ";
+            foutWay << p.angle << endl;
+          }
+          foutWay.close();
+        }
+        // Write out data
+        //ofstream fout(fileNameCalculated);
+        //fout << raftSide << " " << triangleSide << " " << circle << " ";
+        //fout.close();
       }
-    }
-  }*/
-
+  system("pause");
 }

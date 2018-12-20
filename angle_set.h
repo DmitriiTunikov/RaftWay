@@ -1,6 +1,7 @@
 #pragma once
 #include <utility>
 #include <vector>
+#include <list>
 #include <algorithm>
 #include <math.h>
 #include "angle.h"
@@ -21,7 +22,10 @@ public:
   ~AngleSet() = default;
 
   void UnionSetWithVector(const AngleVector &AnVec){
-    for (const Angle &AngleO : AnVec)
+    deleteEmptyAngles();
+    AngleSet anVecSet(AnVec);
+    anVecSet.deleteEmptyAngles();
+    for (const Angle &AngleO : anVecSet._set)
     {
       UnionSelf(AngleO);
     }
@@ -51,6 +55,7 @@ public:
       if (un.size() == 2)
         continue;
       _set.erase(_set.begin() + i);
+     
       UnionSelf(un[0]);
       return;
     }
@@ -77,8 +82,9 @@ public:
 
     for (unsigned int i = 0; i < _set.size();)
     {
-      AngleVector inter = _set[i].Intersect(Ang);
-      if (inter.size() == 0)
+      AngleSet interSet(_set[i].Intersect(Ang));
+      interSet.deleteEmptyAngles();
+      if (interSet._set.size() == 0)
       {
         i++;
         continue;
@@ -86,7 +92,7 @@ public:
 
       Res._set.push_back(_set[i]);
       //realAngles.push_back(inter[0].start + inter[0].delta / 2);
-      realAngles.push_back(inter[0]);
+      realAngles.push_back(interSet._set[0]);
       _set.erase(_set.begin() + i);
     }
     return realAngles.size() > 0;
@@ -158,6 +164,11 @@ public:
   bool Empty()
   {
     return _set.size() == 0;
+  }
+
+  void Clear()
+  {
+    _set.clear();
   }
 
 private:

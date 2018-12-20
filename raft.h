@@ -52,8 +52,13 @@ public:
 		Geometry* rightTriangleSide = new Segment(raftCenter + unitRaftSideX * (raftSide / 2) + unitRaftSideY * (raftSide / 2) + unitRaftSideX * (-(raftSide / 2 - triangleSide / 2)),
 												 raftCenter + unitRaftSideY * (raftSide / 2 + triangleHeight));
 
+    Geometry* extraSide = new Segment(raftCenter,
+      raftCenter + unitRaftSideY * (raftSide / 2 + triangleHeight));
+
+
 		Vector2d halfCircleCenter(raftCenter + unitRaftSideY * (-raftSide / 2));
 		Geometry* halfCircle = new HalfCircle(halfCircleCenter, halfCircleRadius, front);
+
 
 
 		sides.push_back(leftSide);
@@ -65,8 +70,9 @@ public:
 
 		sides.push_back(leftTriangleSide);
 		sides.push_back(rightTriangleSide);
-
+    sides.push_back(extraSide);
 		sides.push_back(halfCircle);
+    InitRelativeSides();
 	}
 
 	void MoveParallel(const Vector2d& moveVec) {
@@ -82,9 +88,9 @@ public:
 	}
 
   void InitRelativeSides(void) {
-    Raft raft(Vector2d(0, 0), Vector2d(0, 1), raftSide, triangleSide, halfCircleRadius);
+    relativeSides.clear();
     for (unsigned int i = 0; i < sides.size() - 1; i++) {
-      relativeSides.push_back(*(Segment *)raft.sides[i]);
+      relativeSides.push_back(*(Segment *)sides[i]);
     }
   }
 

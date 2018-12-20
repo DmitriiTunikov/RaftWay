@@ -26,8 +26,8 @@ public:
   /* Add new link function */
   void addLink(const int Id1, const int Id2)
   {
-    GraphElem &it1 = sup::findElemInArrayById<GraphElem>(_elements, Id1);
-    GraphElem &it2 = sup::findElemInArrayById<GraphElem>(_elements, Id2);
+    GraphElem &it1 = _elements[Id1];
+    GraphElem &it2 = _elements[Id2];
 
     it1.addNeighbor(Id2);
     it2.addNeighbor(Id1);
@@ -56,6 +56,10 @@ public:
   {
     return _elements;
   } /* End of 'getElements' function */
+
+  GraphElem getElemById(int Id1){
+    return _elements[Id1];
+  }
 
   /* Pulling edge function */
   /*void pullEdge(const int Id1, const int Id2)

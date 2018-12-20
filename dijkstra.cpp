@@ -12,6 +12,7 @@
 #include "dijkstra.h"
 #include "priority_queue.h"
 #include <map>
+#include <stack>
 
 double heuristic(const Vector2d &a, const Vector2d &b)
 {
@@ -19,7 +20,7 @@ double heuristic(const Vector2d &a, const Vector2d &b)
   return fabs(a.GetX() - b.GetX()) + fabs(a.GetY()- b.GetY());
 }
 
-std::vector<WayPoint> Dijkstra::GetGoalWay(AngleGraphElem& start, AngleGraphElem& goal, std::vector<AngleGraphElem> &came_from)
+std::vector<WayPoint> Dijkstra::GetGoalWay(AngleGraphElem& start, AngleGraphElem& goal, std::vector<CameFromElem> &came_from)
 {
   AngleGraphElem current = goal;
   std::vector<WayPoint> path;
@@ -27,7 +28,9 @@ std::vector<WayPoint> Dijkstra::GetGoalWay(AngleGraphElem& start, AngleGraphElem
 
   while (!(current.getPos() == start.getPos()))
   {
-    current = came_from[current.getId()];
+    int id = current.getId();
+    current = came_from[current.getId()].curElems.top();
+    came_from[id].curElems.pop();
     path.push_back(WayPoint(current.getPos(), current.curRealAngle));
   }
   //path.push_back(start.getPos());
@@ -36,7 +39,7 @@ std::vector<WayPoint> Dijkstra::GetGoalWay(AngleGraphElem& start, AngleGraphElem
 } /* End of 'GetGoalWay' function */
 
 bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<AngleGraphElem>& graph,
-  std::vector<AngleGraphElem> &came_from)
+  std::vector<CameFromElem> &came_from)
 {
   //init vectors
   PriorityQueue<AngleGraphElem, double> frontier;
@@ -51,19 +54,21 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
   }
 
   std::vector<AngleGraphElem> graph_vert = graph.getElements();
-  came_from = std::vector<AngleGraphElem>(graph_vert.size());
+  came_from = std::vector<CameFromElem>(graph_vert.size());
   std::vector<double> cost_so_far(graph_vert.size());
   
-  came_from[start.getId()] = AngleGraphElem(Vector2d(-1, -1), AngleSet());
+  //came_from[start.getId()].curElems.push(AngleGraphElem(Vector2d(-1, -1), AngleSet()));
   cost_so_far[start.getId()] = 0;
   
   while (!frontier.empty()) 
   {
     AngleGraphElem current = frontier.pop();
 
-    if (current.getPos() == goal.getPos() &&
-    (current.getCurRealAngle() > 3. * M_PI / 2 && current.getCurRealAngle() < PI2))
+    if (current.getPos() == goal.getPos()){
+      goal = current;
+    //(current.getCurRealAngle() > 3. * M_PI / 2 && current.getCurRealAngle() < PI2))
       return true;
+    }
     //add neighbors to frontier 
     std::vector<int> neighbors = current.getNeighbors();
     for (auto next : neighbors)
@@ -97,8 +102,17 @@ bool Dijkstra::GetAllWays(AngleGraphElem& start, AngleGraphElem& goal, Graph<Ang
           //push it to front
           frontier.push(newFrontElem, 1.0f / priority);
         }
+        std::stack<AngleGraphElem> curElemCameFrom = came_from[current.getId()].curElems;
+        bool isHaveInCameFrom = false;
+        while (!curElemCameFrom.empty()){
+          AngleGraphElem elem = curElemCameFrom.top();
+          curElemCameFrom.pop();
+          if (elem.getId() == next)
+            isHaveInCameFrom = true;
+        }
         //fill came from vec
-        came_from[next] = current;
+        if (!isHaveInCameFrom)
+          came_from[next].curElems.push(current);
       }      
     }
   }
